@@ -191,6 +191,16 @@ int newLuaButton(lua_State* L) {
     return 0;
 }
 
+int newLuaClearButtons(lua_State* L) {
+    g_pGlobalState->buttons.clear();
+
+    for (auto& b : g_pGlobalState->bars) {
+        b->m_bButtonsDirty = true;
+    }
+
+    return 0;
+}
+
 APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
     PHANDLE = handle;
 
@@ -254,8 +264,10 @@ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
 
     if (Config::mgr()->type() == Config::CONFIG_LEGACY)
         HyprlandAPI::addConfigKeyword(PHANDLE, "plugin:hyprbars:hyprbars-button", onNewButton, Hyprlang::SHandlerOptions{});
-    else
+    else {
         HyprlandAPI::addLuaFunction(PHANDLE, "hyprbars", "add_button", ::newLuaButton);
+        HyprlandAPI::addLuaFunction(PHANDLE, "hyprbars", "clear_buttons", ::newLuaClearButtons);
+    }
     static auto P4 = Event::bus()->m_events.config.preReload.listen([&] { onPreConfigReload(); });
     static auto P5 = Event::bus()->m_events.config.reloaded.listen([&] { onConfigReloaded(); });
 

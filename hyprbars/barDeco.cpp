@@ -98,14 +98,6 @@ bool CHyprBar::inputIsValid() {
 
     Desktop::CViewHitTester hitTester{*Desktop::viewState()};
 
-    const auto              WINDOWATCURSOR = hitTester.windowAt(MOUSE, Desktop::View::RESERVED_EXTENTS | Desktop::View::INPUT_EXTENTS | Desktop::View::ALLOW_FLOATING);
-
-    auto                    focusState = Desktop::focusState();
-    auto                    window     = focusState->window();
-
-    if (WINDOWATCURSOR != m_pWindow && m_pWindow != window)
-        return false;
-
     PHLLS    foundSurface = nullptr;
     Vector2D surfaceCoords;
 
@@ -117,6 +109,18 @@ bool CHyprBar::inputIsValid() {
     // Check Overlay Layer
     hitTester.layerSurfaceAt(MOUSE, &PMONITOR->m_layerSurfaceLayers[ZWLR_LAYER_SHELL_V1_LAYER_OVERLAY], &surfaceCoords, &foundSurface);
     if (foundSurface)
+        return false;
+
+    const bool CURSORINSIDEBAR = cursorIsInsideBar();
+    if (CURSORINSIDEBAR)
+        return true;
+
+    const auto WINDOWATCURSOR = hitTester.windowAt(MOUSE, Desktop::View::RESERVED_EXTENTS | Desktop::View::INPUT_EXTENTS | Desktop::View::ALLOW_FLOATING);
+
+    auto       focusState = Desktop::focusState();
+    auto       window     = focusState->window();
+
+    if (WINDOWATCURSOR != m_pWindow && m_pWindow != window)
         return false;
 
     return true;
@@ -615,6 +619,13 @@ void CHyprBar::damageEntire() {
 
 Vector2D CHyprBar::cursorRelativeToBar() {
     return g_pInputManager->getMouseCoordsInternal() - assignedBoxGlobal().pos();
+}
+
+bool CHyprBar::cursorIsInsideBar() {
+    const auto HEIGHT = g_pGlobalState->config.barHeight->value();
+    const auto COORDS = cursorRelativeToBar();
+
+    return VECINRECT(COORDS, 0, 0, assignedBoxGlobal().w, HEIGHT - 1);
 }
 
 eDecorationLayer CHyprBar::getDecorationLayer() {

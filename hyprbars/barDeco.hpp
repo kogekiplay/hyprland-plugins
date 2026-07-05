@@ -76,6 +76,7 @@ class CHyprBar : public IHyprWindowDecoration {
     PHLANIMVAR<CHyprColor>     m_cRealBarColor;
 
     Vector2D                   cursorRelativeToBar();
+    bool                       cursorIsInsideBar();
 
     void                       renderPass(PHLMONITOR, float const& a);
     void                       renderBarTitle(const Vector2D& bufferSize, const float scale);
