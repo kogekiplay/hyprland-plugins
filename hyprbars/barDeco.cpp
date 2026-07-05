@@ -476,7 +476,7 @@ void CHyprBar::renderPass(PHLMONITOR pMonitor, const float& a) {
 
     color.a *= a;
     const bool BUTTONSRIGHT = ALIGNBUTTONS != "left";
-    const bool SHOULDBLUR   = ENABLEBLUR && *PENABLEBLURGLOBAL && color.a < 1.F;
+    const bool SHOULDBLUR   = !PWINDOW->m_ruleApplicator->noBlur().valueOrDefault() && ENABLEBLUR && *PENABLEBLURGLOBAL && color.a < 1.F;
 
     if (HEIGHT < 1) {
         m_iLastHeight = HEIGHT;

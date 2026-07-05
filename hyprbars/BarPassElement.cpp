@@ -1,4 +1,5 @@
 #include "BarPassElement.hpp"
+#include <hyprland/src/desktop/view/Window.hpp>
 #include <hyprland/src/render/OpenGL.hpp>
 #include <hyprland/src/render/Renderer.hpp>
 #include "barDeco.hpp"
@@ -17,9 +18,10 @@ std::vector<UP<IPassElement>> CBarPassElement::draw() {
 bool CBarPassElement::needsLiveBlur() {
     static auto PENABLEBLURGLOBAL = CConfigValue<Config::BOOL>("decoration:blur:enabled");
 
+    const auto  OWNER = data.deco ? data.deco->getOwner() : nullptr;
     CHyprColor  color = data.deco->m_bForcedBarColor.value_or(CHyprColor{static_cast<uint64_t>(g_pGlobalState->config.barColor->value())});
     color.a *= data.a;
-    const bool SHOULDBLUR = g_pGlobalState->config.barBlur->value() && *PENABLEBLURGLOBAL && color.a < 1.F;
+    const bool SHOULDBLUR = OWNER && !OWNER->m_ruleApplicator->noBlur().valueOrDefault() && g_pGlobalState->config.barBlur->value() && *PENABLEBLURGLOBAL && color.a < 1.F;
 
     return SHOULDBLUR;
 }
